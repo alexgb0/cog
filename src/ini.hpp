@@ -6,6 +6,7 @@
 /*
  * ini.hpp - a single header simple ini parser
  * by Alex G. B.
+ * license MIT
  * -------------------------------------------
  * This header is support only the *bare minimun* for parsing ini.
  */
