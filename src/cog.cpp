@@ -4,6 +4,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <filesystem>
+#include <numeric>
 #include <vector>
 
 #define INI_IMPLEMENTATION
@@ -11,6 +12,7 @@
 
 namespace fs = std::filesystem;
 
+//TODO: clean this function, it does too much
 int cog::load_ini_default()
 {
     // We know that the file exist.
@@ -50,10 +52,12 @@ int cog::load_ini_default()
     // This will change. We will add sub sections [dir/src] like so, but right now ini lib doesn't have it.
     cog.folders = ini::get_value<std::string>(hini, "general", "folders", "./src");
 
+    cog.output_file = ini::get_value<std::string>(hini, "general", "output_file", "main");
+    cog.output_folder = ini::get_value<std::string>(hini, "general", "output_folder", "out");
 
     cog::resolve_files(cog, cog.folders);
 
-    return EXIT_SUCCESS;
+    return cog::run_command(cog);
 }
 
 
@@ -81,8 +85,35 @@ void cog::resolve_files(cog::cog_t& cog, const std::string& dir)
     cog._files_path = std::move(files);
 }
 
+void cog::create_output(cog::cog_t& cog)
+{
+    if (fs::exists("./" + cog.output_folder))
+        return;
+    fs::create_directory("./" + cog.output_folder);
+}
 
 void cog::build_command(cog::cog_t& cog)
 {
-    cmd::create(cog.compailer, {});
+    std::string output_path = fs::path(cog.output_folder).append(cog.output_file).string();
+    std::string files_str{};
+    for (const auto& f : cog._files_path)
+    {
+        files_str.append(f);
+        files_str.append(" ");
+    }
+
+    cog.command = cmd::create(cog.compailer, {
+        cog.flags,
+        cog.libs,
+        "-o " + output_path,
+        files_str
+    });
+}
+
+
+bool cog::run_command(cog::cog_t& cog)
+{
+    cog::create_output(cog);
+    cog::build_command(cog);
+    return cmd::execute(cog.command);
 }
