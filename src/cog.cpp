@@ -1,4 +1,5 @@
 #include "cog.hpp"
+#include "cmd.hpp"
 #include <algorithm>
 #include <cctype>
 #include <cstdlib>
@@ -49,6 +50,7 @@ int cog::load_ini_default()
     // This will change. We will add sub sections [dir/src] like so, but right now ini lib doesn't have it.
     cog.folders = ini::get_value<std::string>(hini, "general", "folders", "./src");
 
+
     cog::resolve_files(cog, cog.folders);
 
     return EXIT_SUCCESS;
@@ -77,4 +79,10 @@ void cog::resolve_files(cog::cog_t& cog, const std::string& dir)
     }
 
     cog._files_path = std::move(files);
+}
+
+
+void cog::build_command(cog::cog_t& cog)
+{
+    cmd::create(cog.compailer, {});
 }
