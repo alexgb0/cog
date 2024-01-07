@@ -1,21 +1,32 @@
+#include <cstdlib>
 #include <iostream>
+#include <filesystem>
 
-#define INI_IMPLEMENTATION
-#include "ini.hpp"
+#include "cog.hpp"
 
-int main(int argc, char **argv)
+constexpr const char* COG_FILE = "cog.ini";
+
+// TODO
+int main_args(int argc, char** argv) { std::cerr << "NOT IMPLEMENTED\n"; return EXIT_FAILURE; }
+
+int main(int argc, char** argv)
 {
-    auto ini_obj = ini::open_file("cog.ini");
-    if (!ini_obj.has_value())
+    if (argc > 1)
+       return main_args(argc, argv);
+    // If the user doens't provide any arguments we will get the `cog.ini` in the root dir.
+    // If the folder doesn't contain any `cog.ini` then we will rise an error.
+
+    std::filesystem::path file{COG_FILE};
+    if (!std::filesystem::exists(file))
     {
-        std::cerr << "FAILED TO OPEN FILE OR PARSE IT\n";
-        return 0;
+        std::cerr << "File `" << COG_FILE << "` not found.\n"
+            << "Try to run this command in the the root directory where `" << COG_FILE << "` is.";
+        return EXIT_FAILURE;
     }
 
-    ini::ini_t hini = ini_obj.value();
-    auto res = ini::get_value<std::string>(hini, "general", "foo", "DEFAULT");
 
-    std::cout << "INI VALUE: " << res << "\n";
+    return cog::load_ini_default();
 
-    return 0;
+
+    return EXIT_SUCCESS;
 }
