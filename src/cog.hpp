@@ -22,11 +22,12 @@ namespace cog
         cmd::cmd_t command;
     };
 
-
     // UTIL
     void resolve_files(cog_t& cog, const std::string& dir);
 
-    // Prepares the output. Making the folder if necessary.
+    int parse_ini(cog_t& cog);
+
+// Prepares the output. Making the folder if necessary.
     void create_output(cog_t& cog);
 
     void build_command(cog_t& cog);

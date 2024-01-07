@@ -6,16 +6,34 @@
 #include <filesystem>
 #include <numeric>
 #include <vector>
+#include <iostream>
 
 #define INI_IMPLEMENTATION
 #include "ini.hpp"
 
 namespace fs = std::filesystem;
 
+
+int parse_compailer(cog::cog_t& cog, ini::ini_t& ini);
+void parse_elements(cog::cog_t& cog, ini::ini_t& ini);
+
 //TODO: clean this function, it does too much
 int cog::load_ini_default()
 {
     // We know that the file exist.
+
+    cog::cog_t cog{};
+
+    if (cog::parse_ini(cog) == EXIT_FAILURE)
+        return EXIT_FAILURE;
+    cog::resolve_files(cog, cog.folders);
+
+    return cog::run_command(cog);
+}
+
+
+int cog::parse_ini(cog::cog_t& cog)
+{
     std::optional<ini::ini_t> optional_ini = ini::open_file("./cog.ini");
     if (!optional_ini.has_value())
     {
@@ -24,10 +42,27 @@ int cog::load_ini_default()
     }
 
     ini::ini_t hini = optional_ini.value();
+    if (parse_compailer(cog, hini) == EXIT_FAILURE)
+        return EXIT_FAILURE;
+    parse_elements(cog, hini);
 
-    cog::cog_t cog{};
+    return EXIT_SUCCESS;
+}
 
-    cog.language = ini::get_value<std::string>(hini, "general", "language", "");
+void parse_elements(cog::cog_t& cog, ini::ini_t& ini)
+{
+
+    cog.flags = ini::get_value<std::string>(ini, "general", "flags", "");
+    // This will change. We will add sub sections [dir/src] like so, but right now ini lib doesn't have it.
+    cog.folders = ini::get_value<std::string>(ini, "general", "folders", "./src");
+
+    cog.output_file = ini::get_value<std::string>(ini, "general", "output_file", "main");
+    cog.output_folder = ini::get_value<std::string>(ini, "general", "output_folder", "out");
+}
+
+int parse_compailer(cog::cog_t& cog, ini::ini_t& ini)
+{
+    cog.language = ini::get_value<std::string>(ini, "general", "language", "");
     if (cog.language == "")
     {
         std::cerr << "Error: language not specified.\n";
@@ -46,20 +81,10 @@ int cog::load_ini_default()
     else
         default_compailer = "gcc";
 
-    cog.compailer = ini::get_value<std::string>(hini, "general", "compailer", default_compailer);
+    cog.compailer = ini::get_value<std::string>(ini, "general", "compailer", default_compailer);
 
-    cog.flags = ini::get_value<std::string>(hini, "general", "flags", "");
-    // This will change. We will add sub sections [dir/src] like so, but right now ini lib doesn't have it.
-    cog.folders = ini::get_value<std::string>(hini, "general", "folders", "./src");
-
-    cog.output_file = ini::get_value<std::string>(hini, "general", "output_file", "main");
-    cog.output_folder = ini::get_value<std::string>(hini, "general", "output_folder", "out");
-
-    cog::resolve_files(cog, cog.folders);
-
-    return cog::run_command(cog);
+    return EXIT_SUCCESS;
 }
-
 
 void cog::resolve_files(cog::cog_t& cog, const std::string& dir)
 {

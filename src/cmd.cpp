@@ -22,6 +22,6 @@ cmd::cmd_t cmd::create(std::string command, std::vector<std::string> args)
 bool cmd::execute(cmd::cmd_t cmd)
 {
     std::string command = std::accumulate(cmd.commands.begin(), cmd.commands.end(), std::string{});
-    std::cout << "EXECUTING: " << command << "\n";
+    std::cout << "[COG] " << command << "\n";
     return std::system(command.c_str());
 }
