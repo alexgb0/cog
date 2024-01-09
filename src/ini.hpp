@@ -22,9 +22,15 @@ namespace ini
 {
     using map_t = std::unordered_map<std::string,
                                      std::unordered_map<std::string, std::any>>;
+
+    using opt_map_t = std::unordered_map<std::string,
+                                         std::unordered_map<std::string,
+                                                            std::unordered_map<std::string, std::any>>>;
+
     struct ini_t
     {
         map_t data;
+        opt_map_t opt;
     };
 
     /**
@@ -52,6 +58,7 @@ std::optional<ini::ini_t> ini::parse(std::ifstream& stream)
 {
     ini::ini_t ini{};
     std::string line{};
+    std::string opt_current_section{};
     std::string current_section;
     // We could make an int so we can increment.
     // This can be useful for nested sections,
@@ -62,8 +69,20 @@ std::optional<ini::ini_t> ini::parse(std::ifstream& stream)
         std::string_view line_view = line;
         if (line[0] == '[')
         {
+            size_t pos_opt = line_view.find("/");
             size_t pos = line_view.find("]");
-            current_section = std::string{line_view.substr(1, pos-1)}; // Get the section name
+            // We should account if the user puts [/foo], but we can handle it after
+            if (pos_opt > 1 && pos_opt < line_view.size())
+            {
+                opt_current_section = std::string{line_view.substr(1, pos_opt-1)};
+                current_section = std::string{line_view.substr(pos_opt+1,
+                                                               (pos_opt-line_view.length())+pos-1)}; // Get the section name
+            }
+            else
+            {
+                opt_current_section = "";
+                current_section = std::string{line_view.substr(1, pos-1)}; // Get the section name
+            }
 
             in_section = true;
             continue;
@@ -80,7 +99,12 @@ std::optional<ini::ini_t> ini::parse(std::ifstream& stream)
            std::string key{line_view.substr(0, pos)};
            std::string val{line_view.substr(pos+1)};
 
-           ini.data[current_section][key] = std::make_any<std::string>(val);
+           if (opt_current_section != "")
+               ini.opt[opt_current_section][current_section][key] = std::make_any<std::string>(val);
+           else
+               ini.data[current_section][key] = std::make_any<std::string>(val);
+
+           in_section = false;
        }
     }
 

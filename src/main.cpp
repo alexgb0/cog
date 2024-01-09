@@ -1,12 +1,18 @@
+#include <any>
 #include <cstdlib>
 #include <iostream>
 #include <filesystem>
 
-#include "cog.hpp"
+//#include "cog.hpp"
+
+#define INI_IMPLEMENTATION
+#include "ini.hpp"
 
 constexpr const char* COG_FILE = "cog.ini";
 
 // TODO
+
+
 int main_args(int argc, char** argv) { std::cerr << "NOT IMPLEMENTED\n"; return EXIT_FAILURE; }
 
 int main(int argc, char** argv)
@@ -25,8 +31,13 @@ int main(int argc, char** argv)
     }
 
 
-    return cog::load_ini_default();
+    // // return cog::load_ini_default();
 
 
+    // auto hini = ini::open_file("test.ini");
+    // if (!hini.has_value())
+    //     std::cerr << "ERROR: can't open the file\n";
+    // auto data = hini.value().opt.at("test").at("asd").at("bar");
+    // std::cout << "DATA: " << std::any_cast<std::string>(data) << "\n";
     return EXIT_SUCCESS;
 }
