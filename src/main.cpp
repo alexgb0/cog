@@ -3,15 +3,10 @@
 #include <iostream>
 #include <filesystem>
 
-//#include "cog.hpp"
+#include "cog.hpp"
 
-#define INI_IMPLEMENTATION
-#include "ini.hpp"
 
 constexpr const char* COG_FILE = "cog.ini";
-
-// TODO
-
 
 int main_args(int argc, char** argv) { std::cerr << "NOT IMPLEMENTED\n"; return EXIT_FAILURE; }
 
@@ -31,7 +26,7 @@ int main(int argc, char** argv)
     }
 
 
-    // // return cog::load_ini_default();
+    return cog::load_ini_default();
 
 
     // auto hini = ini::open_file("test.ini");

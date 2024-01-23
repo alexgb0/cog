@@ -1,5 +1,3 @@
-#include "cog.hpp"
-#include "cmd.hpp"
 #include <algorithm>
 #include <cctype>
 #include <cstdlib>
@@ -8,8 +6,9 @@
 #include <vector>
 #include <iostream>
 
-#define INI_IMPLEMENTATION
 #include "ini.hpp"
+#include "cog.hpp"
+#include "cmd.hpp"
 
 namespace fs = std::filesystem;
 
@@ -42,6 +41,10 @@ int cog::parse_ini(cog::cog_t& cog)
     }
 
     ini::ini_t hini = optional_ini.value();
+    
+
+    ini::print_keys(hini);
+
     if (parse_compailer(cog, hini) == EXIT_FAILURE)
         return EXIT_FAILURE;
     parse_elements(cog, hini);
@@ -51,7 +54,6 @@ int cog::parse_ini(cog::cog_t& cog)
 
 void parse_elements(cog::cog_t& cog, ini::ini_t& ini)
 {
-
     cog.flags = ini::get_value<std::string>(ini, "general", "flags", "");
     // This will change. We will add sub sections [dir/src] like so, but right now ini lib doesn't have it.
     cog.folders = ini::get_value<std::string>(ini, "general", "folders", "./src");

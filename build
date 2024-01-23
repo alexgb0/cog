@@ -1,0 +1,8 @@
+#!/bin/sh
+# boostrap cog
+
+if [[ ! -a "out/" ]]; then
+    mkdir out
+fi
+
+g++ -Wall --std=c++20 -o ./out/cog  ./src/ini.cpp ./src/cmd.cpp ./src/cog.cpp ./src/main.cpp
